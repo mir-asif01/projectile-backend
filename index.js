@@ -26,6 +26,8 @@ async function run() {
     const userCollection = client.db('projectile').collection('users')
     try {
         //api endpoints
+
+        //signup
         app.post('/signup', async (req, res) => {
             const user = req.body
             const { email, userName, password, profileImg } = user
@@ -35,7 +37,10 @@ async function run() {
             if (!existedUser) {
                 const hashedPassword = await bcrypt.hash(password, 10)
                 const result = await userCollection.insertOne({ email, userName, hashedPassword, profileImg })
-                res.send(result)
+                const responseMesssage = {
+                    message: 'SignUp Successful'
+                }
+                res.send(responseMesssage)
                 return
             }
             else if (email === existedUser.email || userName === existedUser.userName) {
@@ -44,6 +49,36 @@ async function run() {
                 }
                 res.send(responseMesssage)
                 return
+            }
+        })
+
+        //login
+        app.post('/login', async (req, res) => {
+            const loginInfo = req.body
+            let { email, password } = loginInfo
+            let existedUser = await userCollection.findOne({ email: email })
+
+            //setting the response message for login request
+            let responseMesssage = {
+                message: 'Login Failed'
+            }
+            if (!existedUser) {
+                responseMesssage.message = "No user found on DB"
+                res.send(responseMesssage)
+                return
+            }
+            if (existedUser) {
+                const isPasswordmatched = await bcrypt.compare(password, existedUser.hashedPassword).then(result => {
+                    if (result) {
+                        // responseMesssage.message = "Login Successful"
+                        // res.send(responseMesssage)
+                        res.send(existedUser)
+                    }
+                    else {
+                        responseMesssage.message = "Incorrect Password"
+                        res.send(responseMesssage)
+                    }
+                })
             }
         })
 
