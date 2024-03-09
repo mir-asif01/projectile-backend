@@ -10,7 +10,7 @@ app.use(express.json())
 app.get('/', (req, res) => {
     res.send('server is running')
 })
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.mtnbd39.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
@@ -24,6 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
     // collections
     const userCollection = client.db('projectile').collection('users')
+    const projectsCollection = client.db('projectile').collection('projects')
     try {
         //api endpoints
 
@@ -80,6 +81,30 @@ async function run() {
                     }
                 })
             }
+        })
+
+        // get all users
+        app.get('/users', async (req, res) => {
+            // const query = { email: "demo@gmail.com" }
+            const users = await userCollection.find().toArray()
+            res.send(users)
+        })
+
+        // add prpject
+        app.post('/projects', async (req, res) => {
+            const project = req.body
+            const result = await projectsCollection.insertOne(project)
+            res.send(result)
+        })
+        // get all projects
+        app.get('/projects', async (req, res) => {
+            const userEmail = req?.query.email
+            console.log(userEmail);
+            const query = {
+                creator: userEmail
+            }
+            const projects = await projectsCollection.find(query).toArray()
+            res.send(projects)
         })
 
     } finally {
