@@ -99,14 +99,26 @@ async function run() {
         // get all projects
         app.get('/projects', async (req, res) => {
             const userEmail = req?.query.email
-            console.log(userEmail);
-            const query = {
-                creator: userEmail
+            if (userEmail) {
+                console.log(userEmail);
+                const query = {
+                    creator: userEmail
+                }
+                const projects = await projectsCollection.find(query).toArray()
+                res.send(projects)
+            } else {
+                const projects = await projectsCollection.find().toArray()
+                res.send(projects)
             }
-            const projects = await projectsCollection.find(query).toArray()
-            res.send(projects)
         })
-
+        //get project by id
+        app.get('/projects/:id', async (req, res) => {
+            const id = req.params.id
+            console.log(id);
+            const query = { _id: new ObjectId(id) }
+            const project = await projectsCollection.findOne(query)
+            res.send(project)
+        })
     } finally {
 
     }
