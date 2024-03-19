@@ -25,6 +25,7 @@ async function run() {
     // collections
     const userCollection = client.db('projectile').collection('users')
     const projectsCollection = client.db('projectile').collection('projects')
+    const feedbackCollection = client.db('projectile').collection('feedback')
     try {
         //api endpoints
 
@@ -100,7 +101,6 @@ async function run() {
         app.get('/projects', async (req, res) => {
             const userEmail = req?.query.email
             if (userEmail) {
-                console.log(userEmail);
                 const query = {
                     creator: userEmail
                 }
@@ -114,11 +114,19 @@ async function run() {
         //get project by id
         app.get('/projects/:id', async (req, res) => {
             const id = req.params.id
-            console.log(id);
             const query = { _id: new ObjectId(id) }
             const project = await projectsCollection.findOne(query)
             res.send(project)
         })
+
+        // add feedback
+        app.post('/feedback', async (req, res) => {
+            const feedback = req.body
+            const result = await feedbackCollection.insertOne(feedback)
+            res.send(result)
+        })
+
+
     } finally {
 
     }
