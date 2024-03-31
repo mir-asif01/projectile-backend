@@ -26,6 +26,7 @@ async function run() {
     const userCollection = client.db('projectile').collection('users')
     const projectsCollection = client.db('projectile').collection('projects')
     const feedbackCollection = client.db('projectile').collection('feedback')
+    const taskCollection = client.db('projectile').collection('tasks')
     try {
         //api endpoints
 
@@ -129,6 +130,13 @@ async function run() {
         app.get('/feedbacks', async (req, res) => {
             const query = {}
             const result = await feedbackCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        // add task
+        app.post('/addTask', async (req, res) => {
+            const task = req.body
+            const result = await taskCollection.insertOne(task)
             res.send(result)
         })
 
