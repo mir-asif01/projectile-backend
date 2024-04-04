@@ -139,6 +139,15 @@ async function run() {
             const result = await taskCollection.insertOne(task)
             res.send(result)
         })
+        // get all tasks
+        app.get("/tasks", async (req, res) => {
+            const id = req?.query.projectId
+            const query = {
+                projectId: id
+            }
+            const tasks = await taskCollection.find(query).toArray()
+            res.send(tasks)
+        })
 
     } finally {
 
