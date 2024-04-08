@@ -27,6 +27,7 @@ async function run() {
     const projectsCollection = client.db('projectile').collection('projects')
     const feedbackCollection = client.db('projectile').collection('feedback')
     const taskCollection = client.db('projectile').collection('tasks')
+    const commentCollection = client.db('projectile').collection('comments')
     try {
         //api endpoints
 
@@ -147,6 +148,44 @@ async function run() {
             }
             const tasks = await taskCollection.find(query).toArray()
             res.send(tasks)
+        })
+
+        // add comment
+        app.post("/addComment", async (req, res) => {
+            const comment = req.body
+            const result = await commentCollection.insertOne(comment)
+            res.send(result)
+        })
+
+        // get all comments
+        app.get('/commentst', async (req, res) => {
+            const id = req?.query.projectId
+            const query = { projectId: id }
+            const comments = await commentCollection.find(query).toArray()
+            res.send(comments)
+        })
+
+        // team members viewing their the project they are member of...
+
+        app.get('/memberOfProjects', async (req, res) => {
+            const userEmail = req?.query.email
+            const memberOfProjects = []
+            const allProjects = await projectsCollection.find().toArray()
+            // console.log(allProjects);
+            for (let i = 0; i < allProjects.length; i++) {
+                let members = allProjects[i].teamMembers;
+                let bool = members.includes(userEmail)
+                if (bool) {
+                    memberOfProjects.push(allProjects[i])
+                }
+            }
+            if (memberOfProjects.length !== 0) {
+                res.send(memberOfProjects)
+            }
+            if (memberOfProjects.length === 0) {
+                res.send('You are not member of any projects')
+            }
+
         })
 
     } finally {
