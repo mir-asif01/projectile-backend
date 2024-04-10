@@ -72,7 +72,7 @@ async function run() {
                 return
             }
             if (existedUser) {
-                const isPasswordmatched = await bcrypt.compare(password, existedUser.hashedPassword).then(result => {
+                await bcrypt.compare(password, existedUser.hashedPassword).then(result => {
                     if (result) {
                         // responseMesssage.message = "Login Successful"
                         // res.send(responseMesssage)
@@ -93,13 +93,13 @@ async function run() {
             res.send(users)
         })
 
-        // add prpject
+        // add project
         app.post('/projects', async (req, res) => {
             const project = req.body
             const result = await projectsCollection.insertOne(project)
             res.send(result)
         })
-        // get all projects
+        // get all projects by creator email
         app.get('/projects', async (req, res) => {
             const userEmail = req?.query.email
             if (userEmail) {
@@ -158,9 +158,11 @@ async function run() {
         })
 
         // get all comments
-        app.get('/commentst', async (req, res) => {
+        app.get('/comments', async (req, res) => {
             const id = req?.query.projectId
-            const query = { projectId: id }
+            const query = {
+                projectId: id
+            }
             const comments = await commentCollection.find(query).toArray()
             res.send(comments)
         })
@@ -185,16 +187,10 @@ async function run() {
             if (memberOfProjects.length === 0) {
                 res.send('You are not member of any projects')
             }
-
         })
-
-    } finally {
-
-    }
+    } finally { }
 }
 run().catch(console.dir)
 app.listen(port, () => {
     console.log(`This app is running on http://localhost:${port}`);
 })
-
-
